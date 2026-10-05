@@ -549,6 +549,7 @@ footer .wrap{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:space-betwee
 </footer>
 
 <script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 // Source: Living Lab project log (project_log.xlsx). Personal emails, funding amounts,
 // internal remarks and NDA-restricted entries are deliberately left out.
 const PROJECTS = [
@@ -856,13 +857,24 @@ drawGate();
 
 // Router
 const routes=["home","community","projects","propose","past","research","estate"];
-function route(){
-  const r=(location.hash||"#home").slice(1); const name=routes.includes(r)?r:"home";
+function show(name){
+  if(!routes.includes(name)) name="home";
   document.querySelectorAll("[data-route]").forEach(s=>s.hidden=s.dataset.route!==name);
   document.querySelectorAll("nav.main a").forEach(a=>{ if(a.getAttribute("href")==="#"+name) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
-  window.scrollTo(0,0);
+  try{window.scrollTo(0,0);}catch(e){}
 }
-addEventListener("hashchange",route); route();
+function route(){ show((location.hash||"#home").slice(1)); }
+// Route on click directly, so links work even where the page address can't change
+document.addEventListener("click",e=>{
+  const a=e.target.closest('a[href^="#"]'); if(!a) return;
+  const name=a.getAttribute("href").slice(1);
+  if(!routes.includes(name)) return;
+  e.preventDefault();
+  show(name);
+  try{ if(location.hash!=="#"+name) history.pushState(null,"","#"+name); }catch(err){}
+  const h=document.querySelector(`[data-route="${name}"] h1`); if(h){h.tabIndex=-1;try{h.focus({preventScroll:true});}catch(err){}}
+});
+addEventListener("hashchange",route); addEventListener("popstate",route); route();
 </script>
 
 </body>
