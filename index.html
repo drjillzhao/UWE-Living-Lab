@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="UWE Living Lab: student research projects that use the campus and community to tackle sustainability challenges.">
+<title>UWE Living Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: campus-survey site — slim top bar, page-per-route, content column ~70rem with card grids */
+:root{
+  --bg:#f5f7f6; --surface:#ffffff; --ink:#18262f; --muted:#5a6a70; --line:#d8e0dd;
+  --accent:#1f6f54; --accent-ink:#ffffff; --accent-soft:#e1efe8; --signal:#b8621b; --signal-soft:#f8eadc;
+  --lock:#2c4a66; --lock-soft:#e3ebf3;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111a1f; --surface:#18242b; --ink:#e4ece9; --muted:#9aaab0; --line:#2b3a42;
+  --accent:#5cc49b; --accent-ink:#0d1a15; --accent-soft:#1c3a2f; --signal:#e79b5a; --signal-soft:#3a2a1c;
+  --lock:#8db4dc; --lock-soft:#1d2d3c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111a1f; --surface:#18242b; --ink:#e4ece9; --muted:#9aaab0; --line:#2b3a42;
+  --accent:#5cc49b; --accent-ink:#0d1a15; --accent-soft:#1c3a2f; --signal:#e79b5a; --signal-soft:#3a2a1c;
+  --lock:#8db4dc; --lock-soft:#1d2d3c; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:400 1.0625rem/1.6 var(--f-body)}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2rem,5vw,3.1rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.6rem;font-weight:700}
+h3{font-size:1.15rem;font-weight:500}
+p{margin:0}
+.wrap{max-width:70rem;margin:0 auto;padding-inline:20px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding-block:.7rem}
+.brand{display:flex;align-items:center;gap:.6rem;text-decoration:none;color:var(--ink);font-family:var(--f-display);font-weight:700;font-size:1.15rem}
+.brand svg{flex:none}
+nav.main{display:flex;gap:.25rem;flex-wrap:wrap;margin-left:auto}
+nav.main a{text-decoration:none;color:var(--muted);font-weight:600;font-size:.95rem;padding:.35rem .65rem;border-radius:6px}
+nav.main a:hover{color:var(--ink);background:var(--accent-soft)}
+nav.main a[aria-current="page"]{color:var(--accent);background:var(--accent-soft)}
+nav.main a.locked::before{content:"";display:inline-block;width:.7em;height:.7em;margin-right:.35em;vertical-align:-.05em;background:currentColor;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7zm2 0h4V5a2 2 0 0 0-4 0z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 7V5a4 4 0 0 1 8 0v2h1v8H3V7zm2 0h4V5a2 2 0 0 0-4 0z'/%3E%3C/svg%3E") center/contain no-repeat}
+
+main{padding-block:2.5rem 4rem}
+.page{display:grid;gap:2.5rem}
+.crumb{font:500 .8rem var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.lede{font-size:1.2rem;color:var(--muted);max-width:42rem}
+.intro{display:grid;gap:.9rem}
+.note{font-size:.9rem;color:var(--muted)}
+
+/* Home hero */
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:2.5rem;align-items:center}
+.hero .lede{color:var(--ink);opacity:.82}
+.hero-map{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1rem;min-width:0}
+.hero-map svg{display:block;width:100%;height:auto}
+.hero-map figcaption{font:400 .78rem var(--f-mono);color:var(--muted);margin-top:.5rem}
+.cta-row{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.4rem}
+.btn{display:inline-flex;align-items:center;gap:.4rem;font:600 1rem var(--f-body);padding:.65rem 1.1rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:hover{filter:brightness(1.07)}
+
+/* Route cards */
+.routes{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem}
+.route{display:grid;gap:.5rem;align-content:start;padding:1.3rem;background:var(--surface);border:1px solid var(--line);border-radius:12px;text-decoration:none;color:var(--ink);transition:border-color .15s, transform .15s}
+.route:hover{border-color:var(--accent);transform:translateY(-2px)}
+.route p{color:var(--muted);font-size:.97rem}
+.route .go{font-weight:600;color:var(--accent);font-size:.95rem;margin-top:.2rem}
+.route.lock{background:var(--lock-soft);border-color:transparent}
+.route.lock .go{color:var(--lock)}
+.tag{display:inline-flex;align-items:center;gap:.3rem;font:500 .72rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;padding:.2rem .5rem;border-radius:4px;background:var(--accent-soft);color:var(--accent);width:max-content}
+.tag.lockt{background:var(--surface);color:var(--lock)}
+.tag.open{background:var(--signal-soft);color:var(--signal)}
+
+/* Process */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1.5rem;counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;display:grid;gap:.35rem;border-top:2px solid var(--accent);padding-top:.8rem}
+.steps li::before{content:"Step " counter(s);font:500 .75rem var(--f-mono);color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+.steps p{color:var(--muted);font-size:.97rem}
+
+/* Projects */
+.filters{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.chip{font:600 .9rem var(--f-body);padding:.35rem .8rem;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(19rem,1fr));gap:1rem}
+.proj{display:grid;gap:.6rem;align-content:start;padding:1.2rem 1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.proj .meta{display:flex;flex-wrap:wrap;gap:.4rem}
+.proj p{color:var(--muted);font-size:.97rem}
+.proj dl{display:grid;grid-template-columns:auto 1fr;gap:.2rem .8rem;margin:0;font-size:.88rem}
+.proj dt{font:500 .75rem var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-top:.15rem}
+.proj dd{margin:0}
+.sdg{display:flex;gap:.3rem;flex-wrap:wrap}
+.sdg span{font:500 .72rem var(--f-mono);padding:.15rem .4rem;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
+.example-flag{font:500 .75rem var(--f-mono);color:var(--signal);background:var(--signal-soft);padding:.4rem .7rem;border-radius:6px;width:max-content;max-width:100%}
+
+/* Form */
+form.propose{display:grid;gap:1.1rem;max-width:44rem;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:1.5rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.field{display:grid;gap:.3rem;min-width:0}
+label{font-weight:600;font-size:.95rem}
+.hint{font-size:.85rem;color:var(--muted)}
+input,select,textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.6rem .7rem;width:100%}
+textarea{min-height:7rem;resize:vertical}
+.err{color:var(--signal);font-size:.88rem}
+.done{display:grid;gap:.6rem;max-width:44rem;padding:1.5rem;border-radius:14px;background:var(--accent-soft)}
+.side{display:grid;grid-template-columns:minmax(0,1fr) 18rem;gap:2rem;align-items:start}
+.aside{display:grid;gap:.8rem;font-size:.95rem;color:var(--muted);border-left:2px solid var(--line);padding-left:1.2rem}
+.aside h3{color:var(--ink)}
+.aside ul{margin:0;padding-left:1.1rem;display:grid;gap:.35rem}
+
+/* Past */
+.past{display:grid;gap:0;border-top:1px solid var(--line)}
+.pastrow{display:grid;grid-template-columns:6rem minmax(0,1fr) minmax(0,15rem);gap:1.25rem;padding:1.3rem 0;border-bottom:1px solid var(--line)}
+.year{font:500 1.05rem var(--f-mono);color:var(--accent);font-variant-numeric:tabular-nums}
+.pastrow p{color:var(--muted);font-size:.97rem;margin-top:.3rem}
+.impact{font-size:.92rem;background:var(--accent-soft);border-radius:8px;padding:.7rem .85rem;align-self:start}
+.impact b{display:block;font:500 .72rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:.2rem}
+
+/* Protected */
+.gate{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.5rem}
+.panel{display:grid;gap:.9rem;align-content:start;padding:1.5rem;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.panel.lockp{background:var(--lock-soft);border-color:transparent}
+.panel.lockp h2{color:var(--lock)}
+.status{display:flex;align-items:center;gap:.6rem;padding:.7rem 1rem;border-radius:10px;background:var(--accent-soft);color:var(--accent);font-weight:600;flex-wrap:wrap}
+.status button{margin-left:auto}
+.data-table{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:40rem;font-size:.95rem}
+th,td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .74rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{font:500 .72rem var(--f-mono);padding:.15rem .45rem;border-radius:4px;white-space:nowrap}
+.pill.r{background:var(--lock-soft);color:var(--lock)}
+.pill.s{background:var(--signal-soft);color:var(--signal)}
+
+/* Research */
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem}
+.res a.route h3::after{content:" ↗";color:var(--muted);font-weight:400}
+
+/* Audience switch */
+.audience{display:grid;gap:1rem;padding:1.5rem;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.seg{display:flex;flex-wrap:wrap;gap:.4rem;padding:.3rem;background:var(--bg);border-radius:10px;width:max-content;max-width:100%}
+.seg button{font:600 .95rem var(--f-body);padding:.5rem .9rem;border-radius:7px;border:0;background:transparent;color:var(--muted);cursor:pointer}
+.seg button[aria-selected="true"]{background:var(--surface);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.paths{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.75rem}
+.path{display:grid;gap:.25rem;padding:.9rem 1rem;border-radius:10px;background:var(--bg);text-decoration:none;color:var(--ink);border:1px solid transparent}
+.path:hover{border-color:var(--accent)}
+.path b{font-family:var(--f-display);font-weight:500;font-size:1.05rem}
+.path span{font-size:.92rem;color:var(--muted)}
+
+/* Community page */
+.pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:1rem}
+.pillar{display:grid;gap:.7rem;align-content:start;padding:1.4rem;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.pillar p{color:var(--muted);font-size:.97rem}
+.pillar ul{margin:0;padding-left:1.1rem;display:grid;gap:.3rem;font-size:.95rem}
+.story{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:1.5rem;padding:1.6rem;border-radius:14px;background:var(--accent-soft)}
+.story p{font-size:1.02rem}
+.story .impact{background:var(--surface)}
+.contact{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between;padding:1.3rem 1.5rem;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+.contact code{font-family:var(--f-mono);font-size:.95rem;user-select:all}
+.tag.comm{background:var(--lock-soft);color:var(--lock)}
+fieldset.comm-fields{border:1px dashed var(--line);border-radius:10px;padding:1rem;margin:0;display:grid;gap:1rem}
+fieldset.comm-fields legend{font:500 .75rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--lock);padding:0 .4rem}
+.filter-label{font:500 .75rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:.3rem}
+
+/* Real project cards */
+.proj .base{font:500 .74rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.proj ul.sub{margin:0;padding-left:1.1rem;display:grid;gap:.2rem;font-size:.93rem}
+.proj .upd{font-size:.88rem;background:var(--bg);border-radius:8px;padding:.6rem .75rem;color:var(--ink)}
+.proj .upd b{display:block;font:500 .7rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:.15rem}
+.proj a{overflow-wrap:anywhere}
+.tag.ongoing{background:var(--accent);color:var(--accent-ink)}
+.tag.idea{background:var(--signal-soft);color:var(--signal)}
+.tag.join{background:var(--surface);color:var(--accent);border:1px solid var(--accent)}
+details.briefs{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.1rem 1.25rem}
+details.briefs summary{cursor:pointer;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;font-family:var(--f-display);font-size:1.1rem}
+details.briefs[open] summary{margin-bottom:.8rem}
+.brief-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1.2rem;margin-top:1rem}
+.brief-cols h4{margin:0 0 .4rem;font:500 .78rem var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.brief-cols ul{margin:0;padding-left:1.1rem;display:grid;gap:.35rem;font-size:.93rem}
+.brief-cols li span{color:var(--muted)}
+
+/* Public data summary */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:1rem}
+.stat{display:grid;gap:.2rem;padding:1.1rem 1.2rem;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.stat .v{font:500 1.8rem var(--f-mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.stat .l{font-size:.92rem;color:var(--muted)}
+.stat .d{font:500 .8rem var(--f-mono);color:var(--accent)}
+@media (max-width:760px){.story{grid-template-columns:1fr}}
+
+footer{border-top:1px solid var(--line);background:var(--surface)}
+footer .wrap{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:space-between;padding-block:1.5rem;font-size:.9rem;color:var(--muted)}
+
+@media (max-width:760px){
+  .hero,.gate,.side,.two{grid-template-columns:1fr}
+  .pastrow{grid-template-columns:1fr;gap:.5rem}
+  .aside{border-left:0;padding-left:0;border-top:2px solid var(--line);padding-top:1rem}
+  nav.main{margin-left:0;width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#home" aria-label="UWE Living Lab home">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="1" width="28" height="28" rx="7" fill="var(--accent)"/><path d="M8 20c0-6 5-11 14-12-1 9-6 14-12 14" fill="none" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linecap="round"/><path d="M8 22l7-7" stroke="var(--accent-ink)" stroke-width="2.2" stroke-linecap="round"/></svg>
+      UWE Living Lab
+    </a>
+    <nav class="main" aria-label="Main">
+      <a href="#community">Community partners</a>
+      <a href="#projects">Available projects</a>
+      <a href="#propose">Propose a project</a>
+      <a href="#past">Past projects</a>
+      <a href="#research">Open research</a>
+      <a href="#estate" class="locked">Estate data</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+
+<!-- HOME -->
+<section class="page" data-route="home">
+  <div class="hero">
+    <div class="intro">
+      <span class="crumb">Sustainability · Teaching and learning</span>
+      <h1>Use the campus as your research site</h1>
+      <p class="lede">The Living Lab connects student research with real sustainability challenges on UWE Bristol's estate. Dissertations and coursework projects use our buildings, grounds and operational data to produce evidence the University can act on.</p>
+      <div class="cta-row">
+        <a class="btn" href="#projects">Browse available projects</a>
+        <a class="btn ghost" href="#propose">Propose your own</a>
+      </div>
+    </div>
+    <figure class="hero-map" style="margin:0">
+      <svg viewBox="0 0 360 240" role="img" aria-label="Illustrative sketch of campus project sites">
+        <rect x="0" y="0" width="360" height="240" rx="8" fill="var(--bg)"/>
+        <path d="M20 200 C 90 170, 140 210, 210 180 S 320 150, 345 170" fill="none" stroke="var(--line)" stroke-width="10" stroke-linecap="round"/>
+        <rect x="40" y="40" width="80" height="50" rx="4" fill="var(--surface)" stroke="var(--line)"/>
+        <rect x="150" y="30" width="60" height="80" rx="4" fill="var(--surface)" stroke="var(--line)"/>
+        <rect x="240" y="55" width="90" height="45" rx="4" fill="var(--surface)" stroke="var(--line)"/>
+        <rect x="60" y="115" width="110" height="40" rx="4" fill="var(--surface)" stroke="var(--line)"/>
+        <circle cx="270" cy="140" r="26" fill="var(--accent-soft)"/>
+        <g font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">
+          <circle cx="80" cy="65" r="7" fill="var(--accent)"/><text x="92" y="69" fill="var(--ink)">Energy</text>
+          <circle cx="180" cy="70" r="7" fill="var(--accent)"/><text x="160" y="125" fill="var(--ink)">Water</text>
+          <circle cx="285" cy="78" r="7" fill="var(--signal)"/><text x="262" y="50" fill="var(--ink)">Waste</text>
+          <circle cx="270" cy="140" r="7" fill="var(--accent)"/><text x="300" y="144" fill="var(--ink)">Biodiversity</text>
+          <circle cx="115" cy="135" r="7" fill="var(--lock)"/><text x="64" y="172" fill="var(--ink)">Travel</text>
+        </g>
+      </svg>
+      <figcaption>Illustrative sketch, not to scale. Each marker is a theme with open projects.</figcaption>
+    </figure>
+  </div>
+
+  <div class="audience">
+    <h2>Where would you like to start?</h2>
+    <div class="seg" role="tablist" aria-label="I am">
+      <button type="button" role="tab" id="aud-student" aria-selected="true" data-aud="student">I'm a student</button>
+      <button type="button" role="tab" id="aud-staff" aria-selected="false" data-aud="staff">I'm UWE staff</button>
+      <button type="button" role="tab" id="aud-community" aria-selected="false" data-aud="community">I'm from a community organisation</button>
+    </div>
+    <div class="paths" role="tabpanel" data-panel="student">
+      <a class="path" href="#projects"><b>Find a project</b><span>Pick a campus or community challenge for your dissertation.</span></a>
+      <a class="path" href="#propose" data-role="Undergraduate student"><b>Propose your own idea</b><span>Tell us what you want to research.</span></a>
+      <a class="path" href="#research"><b>Read earlier work</b><span>See what other students have published.</span></a>
+    </div>
+    <div class="paths" role="tabpanel" data-panel="staff" hidden>
+      <a class="path" href="#propose" data-role="Professional services staff"><b>Set a challenge</b><span>Offer a problem from your team for students to study.</span></a>
+      <a class="path" href="#propose" data-role="Academic staff (module project)"><b>Embed it in a module</b><span>Use Living Lab challenges as coursework.</span></a>
+      <a class="path" href="#estate"><b>Manage data access</b><span>Review requests for estate data.</span></a>
+    </div>
+    <div class="paths" role="tabpanel" data-panel="community" hidden>
+      <a class="path" href="#propose" data-role="Community organisation"><b>Bring us a challenge</b><span>Students can research a problem your organisation faces.</span></a>
+      <a class="path" href="#community"><b>Ways to work with UWE</b><span>Research, student skills and campus spaces.</span></a>
+      <a class="path" href="#past"><b>See what's possible</b><span>Results from earlier partnerships.</span></a>
+    </div>
+  </div>
+
+  <div class="routes">
+    <a class="route" href="#community"><span class="tag comm">Community</span><h3>Community partners</h3><p>Charities, community groups and social enterprises can bring local challenges for students to research.</p><span class="go">Work with us →</span></a>
+    <a class="route" href="#projects"><span class="tag">Students</span><h3>Available projects</h3><p>Challenges set by Estates and Facilities teams, ready to take on as a dissertation or module project.</p><span class="go">See the list →</span></a>
+    <a class="route" href="#propose"><span class="tag">Students and staff</span><h3>Propose a project</h3><p>Have an idea that would help UWE meet its sustainability commitments? Tell us what you want to study.</p><span class="go">Submit a proposal →</span></a>
+    <a class="route" href="#past"><span class="tag">Outcomes</span><h3>Past projects</h3><p>What earlier Living Lab students found, and what changed on campus as a result.</p><span class="go">Read the outcomes →</span></a>
+    <a class="route" href="#research"><span class="tag open">Open access</span><h3>Library open research</h3><p>Published Living Lab outputs, theses and datasets in UWE's open research repositories.</p><span class="go">Go to open research →</span></a>
+    <a class="route lock" href="#estate"><span class="tag lockt">Permission required</span><h3>UWE estate data</h3><p>Metered energy, water, waste and space data for approved projects. Access is granted per project.</p><span class="go">Request access →</span></a>
+  </div>
+
+  <div class="intro">
+    <h2>How a Living Lab project works</h2>
+  </div>
+  <ol class="steps">
+    <li><h3>Choose or propose</h3><p>Pick a listed challenge or propose your own idea with your supervisor's agreement.</p></li>
+    <li><h3>Meet your host team</h3><p>A staff contact from Estates, Facilities or Sustainability agrees scope, site access and data needs.</p></li>
+    <li><h3>Get data access</h3><p>Approved projects receive access to the estate data they need, under a data-use agreement.</p></li>
+    <li><h3>Share what you find</h3><p>Present recommendations to the host team and deposit your output in the open research repository.</p></li>
+  </ol>
+</section>
+
+<!-- COMMUNITY -->
+<section class="page" data-route="community" hidden>
+  <div class="intro">
+    <span class="crumb">Living Lab · Community partners</span>
+    <h1>Work with UWE on a local challenge</h1>
+    <p class="lede">If your charity, community group or social enterprise has a question it can't find time or expertise to answer, our students can help. You bring the problem; a student researches it as part of their course, supported by an academic supervisor.</p>
+    <p class="note">The Living Lab is part of UWE's <a href="#" id="navLink">University Navigator</a>, the front door for community organisations working with the University. <em>Link to be added.</em></p>
+  </div>
+
+  <div class="pillars">
+    <div class="pillar">
+      <span class="tag comm">Research together</span>
+      <h3>Bring us a challenge</h3>
+      <p>Describe a problem in plain words. We'll check whether it can become a student project and find a course it fits.</p>
+      <ul><li>No cost to your organisation</li><li>You agree the scope before work starts</li><li>You receive the findings and recommendations</li></ul>
+      <div><a class="btn" href="#propose" data-role="Community organisation">Submit a challenge</a></div>
+    </div>
+    <div class="pillar">
+      <span class="tag comm">Find what's known</span>
+      <h3>Search UWE research</h3>
+      <p>Someone at UWE may already have studied your question. UWE's open research is free for anyone to read.</p>
+      <ul><li>Reports, articles and theses</li><li>Open datasets you can reuse</li><li>Earlier Living Lab findings</li></ul>
+      <div><a class="btn ghost" href="#research">Search open research</a></div>
+    </div>
+    <div class="pillar">
+      <span class="tag comm">Use the data</span>
+      <h3>Campus sustainability figures</h3>
+      <p>Public headline figures on UWE's energy, waste and travel, useful for local plans and funding bids.</p>
+      <ul><li>Updated yearly</li><li>Detailed data available for approved projects</li></ul>
+      <div><a class="btn ghost" href="#estate">View summary figures</a></div>
+    </div>
+  </div>
+
+  <div class="intro"><h2>How a community challenge becomes a project</h2></div>
+  <ol class="steps">
+    <li><h3>Tell us the problem</h3><p>Use the short form. You don't need to frame it as research; we'll help with that.</p></li>
+    <li><h3>We talk it through</h3><p>A member of the Living Lab team calls you within two weeks to agree what's realistic.</p></li>
+    <li><h3>A student takes it on</h3><p>Projects start in September or January and usually run for one or two terms.</p></li>
+    <li><h3>You get the results</h3><p>The student presents findings to you, and a plain-English summary is published.</p></li>
+  </ol>
+
+  <div class="story">
+    <div style="display:grid;gap:.7rem">
+      <span class="tag comm">Partner story · ongoing</span>
+      <h2>Living Labs with Bristol communities</h2>
+      <p>UWE is co-developing Living Lab projects with neighbourhoods across Bristol: skills in St Paul's, repair with Sparks, citizen science air pollution sensors in Easton, the heat network in Barton Hill, and food growing in Eastville. The Frome Valley Pollinator Pathway connects with the Bristol Beeline.</p>
+    </div>
+    <div class="impact"><b>Lead</b>Laura Fogg-Rogers. Students and community groups interested in joining a strand can get in touch.</div>
+  </div>
+
+  <div class="contact">
+    <div style="display:grid;gap:.2rem"><b>Talk to us first</b><span class="note">Not sure if your idea fits? Email the Living Lab team.</span></div>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap"><code id="contactEmail">livinglab@uwe.ac.uk</code><button class="btn ghost" type="button" id="copyEmail">Copy email</button></div>
+  </div>
+  <p class="note">Contact details are examples. Replace with your community engagement contact.</p>
+</section>
+
+<!-- PROJECTS -->
+<section class="page" data-route="projects" hidden>
+  <div class="intro">
+    <span class="crumb">Living Lab · Available projects</span>
+    <h1>Available projects</h1>
+    <p class="lede">Open ideas are challenges waiting for a student or research team. Ongoing projects are already running, and many still welcome students to join a strand of the work.</p>
+    <p class="note">From the Living Lab project log, updated October 2026.</p>
+  </div>
+  <div class="seg" role="tablist" aria-label="Project status" id="statusTabs"></div>
+  <div class="filters" role="group" aria-label="Filter by who set the challenge" id="srcFilters"></div>
+  <div class="filters" role="group" aria-label="Filter by theme" id="filters"></div>
+  <div class="grid" id="projGrid"></div>
+
+  <details class="briefs" id="briefs">
+    <summary><span class="tag">Open ideas</span> <b>Plastics and packaging briefs by school</b></summary>
+    <p class="note">These briefs were written for UWE's UK Plastics Pact commitments in 2024/25. UWE has since signed the UK Packaging Pact, which replaces the Plastics Pact, and the briefs are being refreshed into a packaging action plan. Contact: Joanna Dainton or Jeff Davey (Sustainability).</p>
+    <div class="brief-cols" id="briefCols"></div>
+  </details>
+
+  <p class="note">Interested in a project? Contact the named lead, or the Sustainability team at <code style="font-family:var(--f-mono)">sustainability@uwe.ac.uk</code>. You can also <a href="#propose">propose a variation</a>.</p>
+</section>
+
+<!-- PROPOSE -->
+<section class="page" data-route="propose" hidden>
+  <div class="intro">
+    <span class="crumb">Living Lab · Propose a project</span>
+    <h1>Propose a project</h1>
+    <p class="lede">We welcome proposals from students, staff and community organisations that tackle a sustainability or social responsibility question, on campus or in the local area. We'll match you with a host team or a student and check what data is available.</p>
+  </div>
+  <div class="side">
+    <div>
+      <form class="propose" id="proposeForm" novalidate>
+        <div class="two">
+          <div class="field"><label for="p-name">Your name</label><input id="p-name" required autocomplete="name"></div>
+          <div class="field"><label for="p-email" id="p-email-label">UWE email</label><input id="p-email" type="email" required autocomplete="email" placeholder="name@live.uwe.ac.uk"></div>
+        </div>
+        <div class="two">
+          <div class="field"><label for="p-role">I am a…</label>
+            <select id="p-role"><option>Undergraduate student</option><option>Postgraduate taught student</option><option>Postgraduate researcher</option><option>Academic staff (module project)</option><option>Professional services staff</option><option>Community organisation</option></select></div>
+          <div class="field"><label for="p-theme">Theme</label>
+            <select id="p-theme"><option>Energy and carbon</option><option>Water</option><option>Waste and circular economy</option><option>Biodiversity and green space</option><option>Travel and transport</option><option>Food</option><option>Wellbeing and social value</option><option>Other</option></select></div>
+        </div>
+        <fieldset class="comm-fields" id="commFields" hidden>
+          <legend>About your organisation</legend>
+          <div class="two">
+            <div class="field"><label for="c-org">Organisation name</label><input id="c-org" autocomplete="organization"></div>
+            <div class="field"><label for="c-type">Type of organisation</label>
+              <select id="c-type"><option>Charity</option><option>Community group</option><option>Social enterprise</option><option>Local authority or public body</option><option>Other</option></select></div>
+          </div>
+          <div class="field"><label for="c-who">Who is affected by this problem?</label><input id="c-who" placeholder="e.g. older residents in Lockleaze"></div>
+          <div class="field"><label for="c-contact">Best way to reach you</label><select id="c-contact"><option>Email</option><option>Phone call</option><option>Meeting in person</option></select></div>
+        </fieldset>
+        <div class="field"><label for="p-title" id="p-title-label">Working title</label><input id="p-title" required placeholder="e.g. Occupancy-based heating in teaching blocks"></div>
+        <div class="field"><label for="p-q" id="p-q-label">Research question and approach</label><span class="hint" id="p-q-hint">What do you want to find out, and how? 100–300 words is plenty.</span><textarea id="p-q" required aria-describedby="p-q-hint"></textarea></div>
+        <div class="field" id="dataField"><label for="p-data">Estate data or site access you'd need</label><textarea id="p-data" placeholder="e.g. half-hourly electricity data for buildings 2Q and 4Q, Jan–Dec 2025"></textarea></div>
+        <div class="two" id="supRow">
+          <div class="field"><label for="p-sup">Supervisor or module leader</label><input id="p-sup"></div>
+          <div class="field"><label for="p-start">Intended start</label><input id="p-start" type="month"></div>
+        </div>
+        <p class="err" id="p-err" hidden>Please fill in your name, a valid email, a title and your research question.</p>
+        <div><button class="btn" type="submit">Submit proposal</button></div>
+      </form>
+      <div class="done" id="proposeDone" hidden tabindex="-1">
+        <h2>Proposal ready</h2>
+        <p>This preview site doesn't send forms anywhere yet. Once it is connected to your form handler or Microsoft Form, proposals will go straight to the Living Lab team.</p>
+        <div><button class="btn ghost" type="button" id="proposeAgain">Write another proposal</button></div>
+      </div>
+    </div>
+    <aside class="aside">
+      <h3>What we look for</h3>
+      <ul>
+        <li>A clear question the University can act on</li>
+        <li>Use of UWE's estate, operations or community</li>
+        <li>A fit with one or more UN Sustainable Development Goals</li>
+        <li>Supervisor support for the project</li>
+      </ul>
+      <h3>Deadlines</h3>
+      <p>Autumn term proposals: 30 October. Spring term proposals: 31 January. <em>Example dates — update to suit.</em></p>
+    </aside>
+  </div>
+</section>
+
+<!-- PAST -->
+<section class="page" data-route="past" hidden>
+  <div class="intro">
+    <span class="crumb">Living Lab · Past projects</span>
+    <h1>Past projects</h1>
+    <p class="lede">Completed Living Lab projects, what they produced, and where the work is going next.</p>
+    <p class="note">From the Living Lab project log, updated October 2026.</p>
+  </div>
+  <div class="past" id="pastList"></div>
+  <p class="note">Full reports are deposited in the <a href="#research">open research repository</a> where students have agreed to share them.</p>
+</section>
+
+<!-- RESEARCH -->
+<section class="page" data-route="research" hidden>
+  <div class="intro">
+    <span class="crumb">Living Lab · Library open research</span>
+    <h1>Library open research</h1>
+    <p class="lede">UWE Library makes the University's research openly available. Use these collections to find earlier Living Lab outputs, and to deposit your own when your project ends.</p>
+  </div>
+  <div class="res">
+    <a class="route" href="https://uwe-repository.worktribe.com/" target="_blank" rel="noopener"><span class="tag open">Open access</span><h3>UWE Bristol Research Repository</h3><p>Search UWE's published research outputs, including articles, reports and theses.</p></a>
+    <a class="route" href="https://www.uwe.ac.uk/study/library/research-support/research-data-repository" target="_blank" rel="noopener"><span class="tag open">Datasets</span><h3>Research Data Repository</h3><p>Find and deposit datasets that underpin UWE research, so others can reuse them.</p></a>
+    <a class="route" href="https://uwe.ac.uk/study/library/research-support/research-repository/how-to-deposit-your-research" target="_blank" rel="noopener"><span class="tag">Guidance</span><h3>How to deposit your research</h3><p>Library guidance on adding your work to the repository.</p></a>
+    <a class="route" href="https://uwe.ac.uk/study/library/research-support/research-repository/repository-information" target="_blank" rel="noopener"><span class="tag">Guidance</span><h3>Repositories and open research</h3><p>Background on UWE's repositories and open research practice.</p></a>
+  </div>
+  <div class="panel">
+    <h2>Search the repository</h2>
+    <p class="note">Opens the UWE Bristol Research Repository in a new tab with your search terms.</p>
+    <form id="repoSearch" class="filters">
+      <label for="repo-q" class="note" style="width:100%">Keywords</label>
+      <input id="repo-q" style="flex:1 1 14rem" value="sustainability campus" >
+      <button class="btn" type="submit">Search</button>
+    </form>
+    <a id="repoLink" href="https://uwe-repository.worktribe.com/search?q=sustainability%20campus" target="_blank" rel="noopener">Open search results ↗</a>
+  </div>
+</section>
+
+<!-- ESTATE (protected) -->
+<section class="page" data-route="estate" hidden>
+  <div class="intro">
+    <span class="crumb">Living Lab · Estate data</span>
+    <h1>UWE estate data</h1>
+    <p class="lede">Headline figures are public for anyone to use. Detailed operational data about UWE's buildings and grounds is available to approved Living Lab projects, because some datasets include commercially sensitive or personal information.</p>
+  </div>
+
+  <div class="intro">
+    <h2>Public summary, 2024/25</h2>
+    <span class="example-flag">Example figures — replace with UWE's published sustainability data</span>
+  </div>
+  <div class="stats" id="stats"></div>
+
+  <div class="intro"><h2>Detailed data for approved projects</h2></div>
+
+  <div id="gateView" class="gate">
+    <div class="panel lockp">
+      <span class="tag lockt">Approved projects</span>
+      <h2>Sign in to view</h2>
+      <p>If your project has been approved, enter the access code sent to you by the Living Lab team.</p>
+      <form id="gateForm" class="field" novalidate>
+        <label for="gate-code">Access code</label>
+        <input id="gate-code" autocomplete="off">
+        <p class="err" id="gate-err" hidden>That code wasn't recognised. Check your approval email or request access.</p>
+        <div style="margin-top:.6rem"><button class="btn" type="submit">Continue</button></div>
+      </form>
+      <p class="note">Demo code for this preview: <code style="font-family:var(--f-mono)">LIVINGLAB</code></p>
+    </div>
+    <div class="panel">
+      <h2>Request access</h2>
+      <form id="reqForm" style="display:grid;gap:.8rem" novalidate>
+        <div class="field"><label for="r-email">UWE email</label><input id="r-email" type="email" autocomplete="email"></div>
+        <div class="field"><label for="r-proj">Project reference or title</label><input id="r-proj" placeholder="e.g. LL-24"></div>
+        <div class="field"><label for="r-sets">Datasets needed</label>
+          <select id="r-sets"><option>Half-hourly meter data (E-sight)</option><option>Sub-meter data (Tridium)</option><option>Student accommodation room data (Prefect)</option><option>BMS data</option><option>BIM drawings or O&amp;M manuals</option><option>Waste arisings data</option><option>Several of these</option></select></div>
+        <p class="err" id="r-err" hidden>Add your UWE email and project so we can find your approval.</p>
+        <div><button class="btn ghost" type="submit">Request access</button></div>
+      </form>
+      <p class="note" id="r-done" hidden>Request recorded in this preview. Connect this form to your request process to send it to the data owner.</p>
+    </div>
+  </div>
+
+  <div id="dataView" class="page" hidden>
+    <div class="status" role="status">Access granted for this session <button class="btn ghost" type="button" id="signOut">Sign out</button></div>
+    <p class="note">Data currently available from UWE Estates, from the Living Lab project log.</p>
+    <div class="data-table">
+      <table style="min-width:56rem">
+        <thead><tr><th>Data</th><th>Source</th><th>How to access</th><th>Format</th><th>Availability</th><th>Ethics</th></tr></thead>
+        <tbody id="dataRows"></tbody>
+      </table>
+    </div>
+    <p class="note">Use of estate data is covered by the Living Lab data-use agreement. Do not share raw files outside your project team or include personal data in published outputs.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>UWE Living Lab · Sustainability, teaching and learning</span>
+    <span>Part of the UWE University Navigator</span>
+    <span>Contact: livinglab@uwe.ac.uk (example address)</span>
+  </div>
+</footer>
+
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// Source: Living Lab project log (project_log.xlsx). Personal emails, funding amounts,
+// internal remarks and NDA-restricted entries are deliberately left out.
+const PROJECTS = [
+  // ---------- Open ideas ----------
+  {status:"idea",theme:"Buildings",base:"Purdown View Passivhaus",title:"Purdown View: exhibition, LCA and acoustics",
+   desc:"Ideas linked to the Passivhaus design of Purdown View student accommodation.",
+   sub:["An exhibition presenting Passivhaus principles and the Purdown design","LCA modelling","Acoustic survey"],
+   estates:"Mireia de la Nogal",students:"Yes"},
+  {status:"idea",theme:"Buildings",base:"A–N Block retrofit",title:"A–N Block retrofit studies",
+   desc:"Several research angles on the retrofit of A–N Block.",
+   sub:["Lifecycle analysis","Post-occupancy evaluation: thermal, lighting, acoustic and occupant behaviour","Interior spatial design and wayfinding","Façade materials"]},
+  {status:"idea",theme:"Energy and heat",base:"District heat network expansion",title:"Evaluating the expanded district heat network",
+   desc:"Questions raised by the expansion of the campus district heat network.",
+   sub:["Efficiency of the expanded network","Procurement and finance","Energy performance gap","Comparison with other energy supply options"]},
+  {status:"idea",theme:"Energy and heat",base:"Heat network",title:"Heat network modelling with estate data",
+   desc:"Use in-use data from the heat network to model, predict and verify its performance.",
+   sub:["Flow and return temperature verification model (model, prediction, verification)","Data mining for fault detection","Optimising flow rate by predicting load demand"],
+   lead:"Owen Gray",students:"Yes"},
+  {status:"idea",theme:"Buildings",base:"Campus-wide",title:"Digital twin of the estate",
+   desc:"Bring estate data together and build BIM models of existing buildings."},
+  {status:"idea",theme:"Nature and green space",base:"Campus-wide",title:"External landscape for wellbeing",
+   desc:"Improve outdoor spaces for wellbeing and encourage more use of external space."},
+  {status:"idea",theme:"Nature and green space",base:"Campus-wide",title:"Living walls and green roofs",
+   desc:"Explore living walls and green roofs on campus, including an acoustic survey of a retrofitted living wall.",
+   lead:"Danny Elvidge (acoustic survey)",students:"Possible",
+   update:"The acoustic survey depends on an installation date for the green wall."},
+  {status:"idea",theme:"People and place",base:"Student accommodation",title:"Living in a living lab",
+   desc:"Explore what it is like to live in a monitored building, from a Science and Technology Studies and public understanding of science perspective, treating residents as participants rather than data points. Could link with MSc Science Communication students.",
+   sub:["Emotions and space when monitored","How does a home become a lab?","Being in control versus being controlled by sensing"],
+   lead:"David Judge",
+   link:{href:"https://jcom.sissa.it/article/pubid/JCOM_2203_2023_E/",label:"JCOM special issue on living labs"}},
+  {status:"idea",theme:"Circular economy",base:"Sustainability Hub (1D015)",title:"Who uses the Sustainability Hub?",
+   desc:"The Hub is a swap shop for clothes, books, kitchen equipment and small electricals, with a tech repair area run by Fix My Crack. Analyse the swap and footfall data already collected, identify trends, and find out who uses the space and what else it could offer.",
+   estates:"Joanna Dainton"},
+  {status:"idea",theme:"Energy and heat",base:"CHSS Sustainability Committee",title:"Boiling-water taps versus kettles",
+   desc:"Some offices have boiling-water standpipes instead of kettles. Are they environmentally sound, and are they switched off at night?",
+   lead:"Sustainability team",estates:"Jeff Davey",students:"Yes"},
+  {status:"idea",theme:"Circular economy",base:"Estates projects",title:"Reusing construction materials on site",
+   desc:"Find ways to reuse construction materials on site in a different form, such as acoustic ceiling tiles and timber cladding.",
+   lead:"Mireia de la Nogal",estates:"Mireia de la Nogal",students:"Yes"},
+  {status:"idea",theme:"Circular economy",src:"Partner",partner:"Arnolfini",base:"Arnolfini",title:"Minimising plastic waste in a museum",
+   desc:"A project on reducing plastic waste in a museum and gallery space, suggested by the Arnolfini.",
+   lead:"Jack Friswell (Arnolfini)",estates:"Kat Corbett",students:"Possible"},
+  {status:"idea",theme:"Circular economy",src:"Partner",partner:"We Are Repairs / Bristol Repair Coalition",base:"We Are Repairs / Bristol Repair Coalition",title:"A repair voucher scheme for Bristol",
+   desc:"Design and plan a repair voucher scheme that makes repairs more accessible to the public, is easy to use, and keeps admin light for participating repairers.",
+   lead:"To be confirmed (Laura Fogg-Rogers, with Bristol Business School)",estates:"Kat Corbett",students:"Yes"},
+  {status:"idea",theme:"Nature and green space",base:"Sustainability team",title:"Swift towers from recycled materials",
+   desc:"Swifts are a priority species in WECA's Local Nature Recovery Strategy and lack nesting habitat. The challenge is to build swift towers from recycled materials such as wind turbine blades, with scope for in silico design testing and environmental impact assessment.",
+   lead:"To be confirmed (possibly School of Architecture and Environment)",estates:"Jeff Davey",students:"Yes",dates:"2026 onwards",
+   link:{href:"https://www.rspb.org.uk/helping-nature/what-you-can-do/activities/create-a-high-home-for-swifts",label:"RSPB guidance on swift homes"}},
+  {status:"idea",theme:"Buildings",src:"Partner",partner:"Share Bristol",base:"Share Bristol container",title:"Cooling the Share Bristol container",
+   desc:"Temperatures inside the container reached 47°C in June 2026. Explore the impact of heat mitigation such as extra insulation and planting, with Building Information Modelling students.",
+   lead:"Ahmed Hagras",students:"Yes",update:"Ideas stage. A business case is needed before measures can be installed."},
+  {status:"idea",theme:"Buildings",base:"Undershed, Watershed (City Campus)",title:"Post-occupancy evaluation of Undershed",
+   desc:"The natural-materials retrofit of the Undershed gallery is complete. Watershed records energy use, so analysing it is an easy first study.",
+   lead:"George Lovesmith",students:"Yes"},
+
+  // ---------- Ongoing ----------
+  {status:"ongoing",theme:"Buildings",base:"Z Block",title:"Z Block design and post-occupancy evaluation",
+   desc:"Post-occupancy evaluation covering thermal comfort, lighting and behaviour. Using the 3D model of E Block provided by Estates, the research will design, simulate and prototype an emotive screen or shading panel.",
+   lead:"Yahya Lavaf-Pour",estates:"Kirsti Norris",students:"No",dates:"May 2024 onwards"},
+  {status:"ongoing",theme:"Buildings",base:"Purdown View Passivhaus",title:"HOPE post-occupancy evaluation",
+   desc:"Post-occupancy evaluation of Passivhaus student accommodation: thermal comfort, acoustics, occupant behaviour and lifecycle assessment.",
+   lead:"HOPE team",estates:"Tom Finn, Kirsti Norris, Abbie Basketter",students:"Student intern",dates:"2021 onwards",
+   update:"Ethics review complete and student intern secured."},
+  {status:"ongoing",theme:"Buildings",base:"Purdown View Passivhaus",title:"PhD: post-occupancy evaluation of Purdown View",
+   desc:"A PhD study of how Purdown View performs in use.",
+   lead:"Jill Zhao",estates:"Abbie Basketter",students:"PhD",dates:"From July 2026",update:"PhD started."},
+  {status:"ongoing",theme:"Buildings",base:"Purdown View Passivhaus",title:"Whole life carbon of buildings",
+   desc:"Whole life carbon assessment of Purdown View.",
+   lead:"Alice Moncaster",estates:"Kirsti Norris",students:"Master's",dates:"February 2024 onwards"},
+  {status:"ongoing",theme:"Circular economy",src:"Partner",partner:"Repair Cafe network",base:"Repair Cafe",title:"Repair skills and community pathways",
+   desc:"Student live projects that build repair skills and develop skills pathways for communities, as part of a just transition.",
+   lead:"Laura Fogg-Rogers",students:"Yes"},
+  {status:"ongoing",theme:"People and place",base:"Climate Action Hub",title:"Climate Action Hub",
+   desc:"Space and connections for student projects on emotional support and climate cafés for navigating the climate crisis.",
+   lead:"Laura Fogg-Rogers",students:"Yes"},
+  {status:"ongoing",theme:"People and place",src:"Partner",partner:"Bristol communities",base:"Bristol communities",title:"Community co-development projects",
+   desc:"Living Lab projects with communities across Bristol.",
+   sub:["St Paul's: skills","Sparks: repair","Easton: citizen science air pollution sensors","Barton Hill: heat network","Eastville: food growing"],
+   lead:"Laura Fogg-Rogers",students:"Yes"},
+  {status:"ongoing",theme:"Nature and green space",src:"Partner",partner:"Frome Valley community",base:"Frome Valley",title:"Frome Valley Pollinator Pathway",
+   desc:"A community pollinator project connected with the Bristol Beeline.",
+   lead:"Laura Fogg-Rogers",students:"Yes"},
+  {status:"ongoing",theme:"Air and sound",src:"Partner",partner:"South Gloucestershire Council and Toshiba",base:"UMBRELLA programme",title:"Campus air quality monitoring network",
+   desc:"Part of one of the largest low-cost sensor networks in the world, run with South Gloucestershire Council and Toshiba. Sensors on the UWE estate measure air quality across campus.",
+   lead:"Ben Williams",students:"Yes",dates:"2021 onwards"},
+  {status:"ongoing",theme:"Circular economy",base:"Campus-wide",title:"Targeted waste composition audits",
+   desc:"Waste audits at different places on campus to understand how waste is produced and thrown away. Findings inform bin locations and could shape future procurement.",
+   lead:"Ben Williams",estates:"Joanna Dainton",students:"Yes",dates:"2023 onwards"},
+  {status:"ongoing",theme:"Air and sound",base:"Frenchay campus",title:"Gamified soundwalks for community engagement",
+   desc:"A pilot using gamified soundwalks to improve community engagement and inform urban planning, for wider testing through the Lockleaze Project.",
+   lead:"Danny Elvidge",students:"Possible",dates:"2024 onwards",
+   update:"The technology is built and tested. Next steps are ethics approval, a small amount of set-up funding, and an intern to process the first results."},
+  {status:"ongoing",theme:"Energy and heat",base:"Student accommodation",title:"Water, energy and inclusion in student homes",
+   desc:"How social dynamics and individual capabilities shape the way students use water and energy at home, and how this leads to inclusion or exclusion for different student groups in different types of accommodation.",
+   lead:"Chad Staddon",estates:"Kirsti Norris",students:"Yes",dates:"2024 onwards"},
+  {status:"ongoing",theme:"Circular economy",src:"Partner",partner:"SUEZ",base:"SUEZ",title:"Separating Tetra Paks",
+   desc:"A project on separating Tetra Pak cartons from waste streams, suggested by SUEZ. Best suited to engineering students.",
+   lead:"Laura Fogg-Rogers",estates:"Kat Corbett",students:"Yes",
+   update:"Likely to run through the Professionalism in Engineering module (September 2025)."},
+  {status:"ongoing",theme:"Circular economy",base:"CATE",title:"In-house recycling of 3D printing waste",
+   desc:"Create a process to recycle 3D printing waste within UWE, reducing plastic waste and closing the loop.",
+   estates:"Jade Shih",students:"Yes",dates:"2026 onwards",
+   update:"A pilot at Bower Ashton is complete and a student has used recycled 3D waste in a project. The next step is to standardise this across UWE."},
+  {status:"ongoing",theme:"Circular economy",src:"Partner",partner:"Lendable and Ecosurety",base:"Campus-wide",title:"LENDABLE reusable packaging scheme",
+   desc:"Eliminate single-use packaging across campus, as part of a wider scheme across Bristol.",
+   estates:"Jade Shih",students:"Yes",dates:"January 2026 onwards",
+   update:"Brief shared with students and reviewed with Ecosurety. Pilot began 20 April 2026, with a 12-month trial launching September 2026."},
+  {status:"ongoing",theme:"People and place",base:"Fairtrade University",title:"Fairtrade awareness and research",
+   desc:"UWE has been a Fairtrade University since 2016. Students can run the awareness survey of the accreditation and purchasing options on campus, or take up questions from the Fairtrade Foundation's Research for Learning agenda.",
+   lead:"Fairtrade Working Group",estates:"Jeff Davey",students:"Yes",
+   link:{href:"https://www.fairtrade.net/content/dam/fairtrade/global/impact/how-we-measure-impact/2021-08-28_Fairtrade-research-for-learning-agenda-2021_final.pdf",label:"Fairtrade Research for Learning agenda (PDF)"}},
+].map(p=>({src:"UWE",...p}));
+
+const BRIEFS = [
+  {college:"Health and Social Sciences",items:[
+    ["Applied Sciences","Using fungi's metabolic diversity to digest cigarette filters"],
+    ["Health and Social Wellbeing","Reducing single-use plastics in nursing, midwifery and paramedic science"],
+    ["Social Sciences","Psychology of recycling: identity and pro-environmental behaviour"],
+    ["Education and Childhood","Environmental aspects of design (brief in development)"]]},
+  {college:"Arts, Technology and Environment",items:[
+    ["Arts","Lifecycle impact of printing inks, and direct printing on recyclable packaging and food"],
+    ["Architecture and Environment","Reducing plastics and increasing reusability in packaging design"],
+    ["Computing and Creative Technologies","Gamifying pro-environmental behaviours"],
+    ["Engineering","Direct labelling of food with product information"]]},
+  {college:"Business and Law",items:[
+    ["Bristol Law School","Defining 'compostable': legal implications and advertising standards"],
+    ["Bristol Law School","Extended producer responsibility: scope, enforcement, costs and benefits"],
+    ["Bristol Business School","Estimating consumer appetite for recycled packaging"],
+    ["Bristol Business School","The financial case for multi-use packaging in consumer goods"]]},
+  {college:"Sustainability team",items:[
+    ["Facilities","On-site composting: benefits, savings and management costs"],
+    ["Facilities","Recycling behaviour in specific settings, such as lab plastics and meal deals"],
+    ["Facilities","Supply chain materiality assessment to prioritise sustainability actions"]]},
+];
+
+const PAST = [
+  {year:"2024–25",title:"Plastics Action: student projects for the UK Plastics Pact",
+   desc:"As a WRAP signatory, UWE's Circular Economy Plan 2024–26 set out to recruit undergraduate and postgraduate students into projects on plastic reduction, reuse and recycling, with suggested briefs for every college.",
+   impact:"Two student projects and a report completed (July 2025). UWE has since signed the UK Packaging Pact, and the plastics plan is being refreshed as a packaging action plan.",
+   link:{href:"https://www.uwe.ac.uk/-/media/uwe/documents/about/sustainability/uwe-bristol-circular-economy-plan-2024-2026.pdf",label:"Circular Economy Plan 2024–26 (PDF)"}},
+  {year:"2022–24",title:"Undershed: natural-materials gallery retrofit",
+   desc:"A partial retrofit and gallery fit-out at Watershed using straw, clay, lime and timber, with a super-insulated single-glazed façade to cut heat loss. Interns from film, illustration, architecture and engineering joined the whole-building retrofit exploration. Lead: George Lovesmith.",
+   impact:"Fit-out complete, funded through the AHRC Creative Clusters programme. Shortlisted for small project of the year in the BD Architect of the Year Awards. Post-occupancy evaluation is now an open idea.",
+   link:{href:"https://www.bdonline.co.uk/news/what-made-this-project-undershed-by-george-lovesmith-architecture/5137065.article",label:"Building Design article"}},
+  {year:"2024",title:"Light frame systems and embodied carbon",
+   desc:"A final-year dissertation that designed a housing unit using cold-formed steel sections and assessed it for lateral stability and embodied carbon. Lead: Ghada Karaki.",
+   impact:"Dissertation submitted (May 2024)."},
+  {year:"Recent",title:"Library of Things",
+   desc:"A business case was developed for a Library of Things, along with finding a location, understanding users (staff, students and the public) and linking it to the Repair Café network.",
+   impact:"The Library of Things is now open at Frenchay Campus.",
+   link:{href:"https://uweacuk.sharepoint.com/sites/staff-intranet-internal-communications/SitePages/Library-of-Things-now-open-at-Frenchay-Campus.aspx",label:"Staff news story (UWE sign-in)"}},
+];
+
+const DATA = [
+  {name:"Half-hourly meter data: electricity, gas, water and heat. Detail varies by building.",src:"E-sight dashboard",how:"Request log-in details from energyteam@uwe.ac.uk",fmt:"Dashboard; download as CSV or Excel",avail:"Allow a week for log-in details",ethics:"No ethics approval needed",ok:true},
+  {name:"Detailed sub-meter data not on E-sight",src:"Tridium",how:"Contact energyteam@uwe.ac.uk to discuss meters and request a download",fmt:"CSV",avail:"Depends on staff time",ethics:"No ethics approval needed",ok:true},
+  {name:"Student accommodation room data: temperature, presence, humidity, sound level, window activity, lighting, heating panel energy. All UWE-owned accommodation except Wallscourt Park Phase 2 and Glenside.",src:"Prefect controls",how:"Contact energyteam@uwe.ac.uk to request a download",fmt:"CSV",avail:"Depends on staff time and how the data will be used",ethics:"Request must come from a senior lecturer stating the academic need; use limited to that research project"},
+  {name:"BMS data",src:"Not yet easy to share",how:"To be confirmed",fmt:"To be confirmed",avail:"Case by case",ethics:"To be confirmed"},
+  {name:"BIM drawings",src:"To be confirmed",how:"To be confirmed",fmt:"To be confirmed",avail:"To be confirmed",ethics:"To be confirmed"},
+  {name:"Operation and maintenance manuals",src:"To be confirmed",how:"To be confirmed",fmt:"To be confirmed",avail:"To be confirmed",ethics:"To be confirmed"},
+  {name:"Previous studies and surveys",src:"To be confirmed",how:"To be confirmed",fmt:"To be confirmed",avail:"To be confirmed",ethics:"To be confirmed"},
+  {name:"Drone use at Frenchay",src:"To be confirmed",how:"To be confirmed",fmt:"To be confirmed",avail:"To be confirmed",ethics:"To be confirmed"},
+  {name:"Waste arisings data",src:"Sustainability team",how:"Email sustainability@uwe.ac.uk",fmt:"To be confirmed",avail:"Depends on staff time",ethics:"To be confirmed"},
+];
+
+const STATS = [
+  {v:"18,400",u:"MWh",l:"Electricity used across campus",d:"−6% on 2023/24"},
+  {v:"9,100",u:"tCO₂e",l:"Scope 1 and 2 carbon emissions",d:"−11% on 2023/24"},
+  {v:"62%",u:"",l:"Waste reused, recycled or composted",d:"+4 points"},
+  {v:"41%",u:"",l:"Staff and student trips by car",d:"−3 points (2025 survey)"},
+];
+
+// Projects + filters
+const themes = ["All", ...new Set(PROJECTS.map(p=>p.theme))];
+const sources = [["All","All"],["UWE","UWE"],["Partner","Community and external partners"]];
+const statuses = [["idea","Open ideas"],["ongoing","Ongoing"],["all","All"]];
+let current = "All", currentSrc = "All", currentStatus = "idea";
+const filtersEl = document.getElementById("filters"), srcEl = document.getElementById("srcFilters"), statusEl = document.getElementById("statusTabs");
+const count = s => PROJECTS.filter(p=>s==="all"||p.status===s).length;
+function drawFilters(){
+  statusEl.innerHTML = statuses.map(([k,l])=>`<button type="button" role="tab" aria-selected="${k===currentStatus}" data-st="${k}">${l} (${count(k)})</button>`).join("");
+  srcEl.innerHTML = `<span class="filter-label">Set by</span>` + sources.map(([k,l])=>`<button type="button" class="chip" aria-pressed="${k===currentSrc}" data-s="${k}">${esc(l)}</button>`).join("");
+  filtersEl.innerHTML = `<span class="filter-label">Theme</span>` + themes.map(t=>`<button type="button" class="chip" aria-pressed="${t===current}" data-t="${esc(t)}">${esc(t)}</button>`).join("");
+  document.getElementById("briefs").hidden = currentStatus==="ongoing" || (current!=="All"&&current!=="Circular economy") || currentSrc==="Partner";
+}
+const yes = s => s && /^(yes|possible|student intern|phd|master)/i.test(s);
+function drawProjects(){
+  const list = PROJECTS.filter(p=>(currentStatus==="all"||p.status===currentStatus)&&(current==="All"||p.theme===current)&&(currentSrc==="All"||p.src===currentSrc));
+  document.getElementById("projGrid").innerHTML = list.length ? list.map(p=>`
+    <article class="proj">
+      <div class="meta">
+        <span class="tag ${p.status}">${p.status==="idea"?"Open idea":"Ongoing"}</span>
+        <span class="tag">${esc(p.theme)}</span>
+        ${p.src==="Partner"?'<span class="tag comm">Partner</span>':''}
+        ${p.status==="ongoing"&&yes(p.students)&&!/phd|intern|master/i.test(p.students)?'<span class="tag join">Students can join</span>':''}
+      </div>
+      <span class="base">${esc(p.base)}</span>
+      <h3>${esc(p.title)}</h3>
+      <p>${esc(p.desc)}</p>
+      ${p.sub?`<ul class="sub">${p.sub.map(s=>`<li>${esc(s)}</li>`).join("")}</ul>`:""}
+      <dl>
+        <dt>Lead</dt><dd>${esc(p.lead||"To be confirmed")}</dd>
+        ${p.estates?`<dt>Estates</dt><dd>${esc(p.estates)}</dd>`:""}
+        ${p.students?`<dt>Students</dt><dd>${esc(p.students)}</dd>`:""}
+        ${p.dates?`<dt>Dates</dt><dd>${esc(p.dates)}</dd>`:""}
+      </dl>
+      ${p.update?`<div class="upd"><b>Latest</b>${esc(p.update)}</div>`:""}
+      ${p.link?`<a href="${p.link.href}" target="_blank" rel="noopener">${esc(p.link.label)} ↗</a>`:""}
+    </article>`).join("") : `<p class="note">No projects match these filters. Try another theme, or <a href="#propose">propose one</a>.</p>`;
+}
+statusEl.addEventListener("click",e=>{const b=e.target.closest("[data-st]");if(!b)return;currentStatus=b.dataset.st;drawFilters();drawProjects();});
+filtersEl.addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(!b)return;current=b.dataset.t;drawFilters();drawProjects();});
+srcEl.addEventListener("click",e=>{const b=e.target.closest("[data-s]");if(!b)return;currentSrc=b.dataset.s;drawFilters();drawProjects();});
+document.getElementById("briefCols").innerHTML = BRIEFS.map(c=>`<div><h4>${esc(c.college)}</h4><ul>${c.items.map(([s,t])=>`<li>${esc(t)} <span>· ${esc(s)}</span></li>`).join("")}</ul></div>`).join("");
+drawFilters();drawProjects();
+
+// Stats
+document.getElementById("stats").innerHTML = STATS.map(s=>`
+  <div class="stat"><span class="v">${esc(s.v)}${s.u?` <small style="font-size:.9rem;color:var(--muted)">${esc(s.u)}</small>`:""}</span>
+  <span class="l">${esc(s.l)}</span><span class="d">${esc(s.d)}</span></div>`).join("");
+
+// Audience switch
+document.querySelector(".seg").addEventListener("click",e=>{
+  const b=e.target.closest("[data-aud]"); if(!b) return;
+  document.querySelectorAll(".seg [data-aud]").forEach(x=>x.setAttribute("aria-selected",x===b));
+  document.querySelectorAll("[data-panel]").forEach(p=>p.hidden=p.dataset.panel!==b.dataset.aud);
+});
+
+// Proposal form: community mode
+const roleSel=document.getElementById("p-role");
+function applyRole(){
+  const comm = roleSel.value==="Community organisation";
+  document.getElementById("commFields").hidden=!comm;
+  document.getElementById("dataField").hidden=comm;
+  document.getElementById("supRow").hidden=comm;
+  document.getElementById("p-email-label").textContent = comm?"Email":"UWE email";
+  document.getElementById("p-email").placeholder = comm?"you@yourorganisation.org":"name@live.uwe.ac.uk";
+  document.getElementById("p-title-label").textContent = comm?"Your challenge in a sentence":"Working title";
+  document.getElementById("p-title").placeholder = comm?"e.g. We don't know which streets most need energy advice":"e.g. Occupancy-based heating in teaching blocks";
+  document.getElementById("p-q-label").textContent = comm?"Tell us more about the problem":"Research question and approach";
+  document.getElementById("p-q-hint").textContent = comm?"What's happening, what you've tried, and what would help. Plain words are best.":"What do you want to find out, and how? 100–300 words is plenty.";
+}
+roleSel.addEventListener("change",applyRole);
+document.addEventListener("click",e=>{
+  const a=e.target.closest("a[data-role]"); if(!a) return;
+  roleSel.value=a.dataset.role; applyRole();
+});
+
+// Copy email + Navigator placeholder
+document.getElementById("copyEmail").addEventListener("click",async()=>{
+  const btn=document.getElementById("copyEmail"), t=document.getElementById("contactEmail").textContent;
+  try{await navigator.clipboard.writeText(t);btn.textContent="Copied";}
+  catch(err){const r=document.createRange();r.selectNodeContents(document.getElementById("contactEmail"));const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent="Press Ctrl+C to copy";}
+  setTimeout(()=>btn.textContent="Copy email",2500);
+});
+document.getElementById("navLink").addEventListener("click",e=>e.preventDefault());
+
+// Past
+document.getElementById("pastList").innerHTML = PAST.map(p=>`
+  <div class="pastrow"><span class="year">${esc(p.year)}</span>
+  <div><h3>${esc(p.title)}</h3><p>${esc(p.desc)}</p>${p.link?`<p><a href="${p.link.href}" target="_blank" rel="noopener">${esc(p.link.label)} ↗</a></p>`:""}</div>
+  <div class="impact"><b>Outcome</b>${esc(p.impact)}</div></div>`).join("");
+
+// Data table
+document.getElementById("dataRows").innerHTML = DATA.map(d=>`
+  <tr><td>${esc(d.name)}</td><td>${esc(d.src)}</td><td>${esc(d.how)}</td><td>${esc(d.fmt)}</td><td>${esc(d.avail)}</td>
+  <td>${d.ok?`<span class="pill r">${esc(d.ethics)}</span>`:/confirmed/i.test(d.ethics)?`<span class="note">${esc(d.ethics)}</span>`:`<span class="pill s">Conditions apply</span> ${esc(d.ethics)}`}</td></tr>`).join("");
+
+// Propose form
+const pf = document.getElementById("proposeForm");
+pf.addEventListener("submit",e=>{
+  e.preventDefault();
+  const ok = ["p-name","p-title","p-q"].every(id=>document.getElementById(id).value.trim()) && /\S+@\S+\.\S+/.test(document.getElementById("p-email").value);
+  document.getElementById("p-err").hidden = ok;
+  if(!ok) return;
+  pf.hidden = true; const d=document.getElementById("proposeDone"); d.hidden=false; d.focus();
+});
+document.getElementById("proposeAgain").addEventListener("click",()=>{pf.reset();applyRole();pf.hidden=false;document.getElementById("proposeDone").hidden=true;});
+
+// Repo search
+const rq=document.getElementById("repo-q"), rl=document.getElementById("repoLink");
+const updRepo=()=>{rl.href="https://uwe-repository.worktribe.com/search?q="+encodeURIComponent(rq.value.trim());};
+rq.addEventListener("input",updRepo);
+document.getElementById("repoSearch").addEventListener("submit",e=>{e.preventDefault();updRepo();rl.focus();});
+
+// Gate (preview only — real protection needs server-side sign-in)
+let unlocked=false;
+try{unlocked=sessionStorage.getItem("ll-unlocked")==="1";}catch(e){}
+function drawGate(){document.getElementById("gateView").hidden=unlocked;document.getElementById("dataView").hidden=!unlocked;}
+document.getElementById("gateForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const ok=document.getElementById("gate-code").value.trim().toUpperCase()==="LIVINGLAB";
+  document.getElementById("gate-err").hidden=ok;
+  if(ok){unlocked=true;try{sessionStorage.setItem("ll-unlocked","1");}catch(e){}drawGate();}
+});
+document.getElementById("signOut").addEventListener("click",()=>{unlocked=false;try{sessionStorage.removeItem("ll-unlocked");}catch(e){}drawGate();});
+document.getElementById("reqForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const ok=/\S+@\S+\.\S+/.test(document.getElementById("r-email").value)&&document.getElementById("r-proj").value.trim();
+  document.getElementById("r-err").hidden=!!ok; document.getElementById("r-done").hidden=!ok;
+});
+drawGate();
+
+// Router
+const routes=["home","community","projects","propose","past","research","estate"];
+function show(name){
+  if(!routes.includes(name)) name="home";
+  document.querySelectorAll("[data-route]").forEach(s=>s.hidden=s.dataset.route!==name);
+  document.querySelectorAll("nav.main a").forEach(a=>{ if(a.getAttribute("href")==="#"+name) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  try{window.scrollTo(0,0);}catch(e){}
+}
+function route(){ show((location.hash||"#home").slice(1)); }
+// Route on click directly, so links work even where the page address can't change
+document.addEventListener("click",e=>{
+  const a=e.target.closest('a[href^="#"]'); if(!a) return;
+  const name=a.getAttribute("href").slice(1);
+  if(!routes.includes(name)) return;
+  e.preventDefault();
+  show(name);
+  try{ if(location.hash!=="#"+name) history.pushState(null,"","#"+name); }catch(err){}
+  const h=document.querySelector(`[data-route="${name}"] h1`); if(h){h.tabIndex=-1;try{h.focus({preventScroll:true});}catch(err){}}
+});
+addEventListener("hashchange",route); addEventListener("popstate",route); route();
+</script>
+
+</body>
+</html>
